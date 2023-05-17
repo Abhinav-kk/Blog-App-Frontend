@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Blog_App_NodeJS",
-    "slug": "Blog_App_NodeJS",
+    "name": "Blog_App",
+    "slug": "Blog_App",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
