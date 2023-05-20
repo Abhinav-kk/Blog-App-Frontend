@@ -65,7 +65,7 @@ function Home() {
     async function getUserAPI(email) {
         try {
             console.log("Recieved email is:", email);
-            const response = await axios.post("http://192.168.1.24:3000/users", {
+            const response = await axios.post("http://192.168.1.4:3000/users", {
                 email: email
             });
             setUserObj(response.data);
@@ -99,7 +99,7 @@ function Home() {
 
     async function getPosts() {
         try {
-            const response = await axios.get("http://192.168.1.24:3000/posts");
+            const response = await axios.get("http://192.168.1.4:3000/posts");
             setPosts2(response.data);
         } catch (error) {
             console.log(error);
@@ -116,7 +116,7 @@ function Home() {
     async function submitPostAPI() {
         var date = moment();
         var currentDate = date.format('DD/MM/YYYY');
-        const response = await axios.post("http://192.168.1.24:3000/post", {
+        const response = await axios.post("http://192.168.1.4:3000/post", {
             title: title,
             content: content,
             userName: userObj.userName,
@@ -150,7 +150,7 @@ function Home() {
                     <Image source={require("../assets/images/BlogIcon.png")} style={styles.logo} />
                 </TouchableWithoutFeedback>
                 <View style={{ flexDirection: 'row' }}>
-                    <TouchableOpacity style={{ marginRight: 20 }} onPress={() => navigation.navigate("Profile", { userObj: userObj })}>
+                    <TouchableOpacity style={{ marginRight: 20 }} onPress={() => navigation.navigate("Profile", { userObj: userObj, loggedInUser: userObj.userName })}>
                         <MaterialIcons name="person" size={45} color="black" />
                     </TouchableOpacity>
                     <TouchableOpacity onPress={() => navigation.navigate("Liked", { emailUser: userEmail, userObj: userObj })}>

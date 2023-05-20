@@ -26,16 +26,20 @@ function Profile(props) {
     const [modalVisible, setModalVisible] = useState(false);
     const navigation = useNavigation();
     const [posts2, setPosts2] = useState({});
+    const loggedInUser = props.route.params.loggedInUser;
     const userObj = props.route.params.userObj;
     const userEmail = props.route.params.userObj.email;
     const [userName, setUserName] = useState(props.route.params.userObj.userName);
     const likedPostsCount = props.route.params.userObj.likedPosts.length;
     const [newUserName, setNewUserName] = useState(userName);
 
+    const [ifCurrentUser, setIfCurrentUser] = useState(false);
+
+
     async function getPosts() {
         try {
             console.log(props.route.params);
-            const response = await axios.get(`http://192.168.1.24:3000/${userEmail}/posts`);
+            const response = await axios.get(`http://192.168.1.4:3000/${userEmail}/posts`);
             console.log(response.data);
             setPosts2(response.data);
         } catch (error) {
@@ -43,8 +47,19 @@ function Profile(props) {
         }
     }
 
+    function checkUser() {
+        console.log("PROPPY:", props.route.params);
+        console.log("User Name: " + loggedInUser);
+        console.log("Post User: " + userName);
+        if (userName == loggedInUser) {
+            setIfCurrentUser(true);
+        }
+    }
+
+
     useEffect(() => {
         getPosts();
+        checkUser();
     }, []);
 
     const refreshPage = navigation.addListener('focus', () => {
@@ -54,7 +69,7 @@ function Profile(props) {
     async function editUsernameAPI() {
         try {
             let userID = userObj._id;
-            const response = await axios.put(`http://192.168.1.24:3000/user/${userID}`, {
+            const response = await axios.put(`http://192.168.1.4:3000/user/${userID}`, {
                 userName: newUserName
             })
             console.log(response.data);
@@ -77,7 +92,7 @@ function Profile(props) {
         try {
             console.log("OLD USERNAME", userName);
             console.log("NEW USERNAME", newUserName);
-            const response = await axios.put(`http://192.168.1.24:3000/posts/update-usernames`, {
+            const response = await axios.put(`http://192.168.1.4:3000/posts/update-usernames`, {
                 oldUsername: userName,
                 newUsername: newUserName
             })
@@ -144,9 +159,13 @@ function Profile(props) {
                 <View style={{ width: 220 }}>
                     <View style={{ flexDirection: 'row', alignSelf: "center" }}>
                         <Text style={styles.profileName}>{userName}</Text>
-                        <TouchableOpacity style={styles.editButton} onPress={() => setModalVisible(!modalVisible)}>
-                            <MaterialIcons name="edit" size={28} color="white" />
-                        </TouchableOpacity>
+                        {
+                            ifCurrentUser ?
+                                <TouchableOpacity style={styles.editButton} onPress={() => setModalVisible(!modalVisible)}>
+                                    <MaterialIcons name="edit" size={28} color="white" />
+                                </TouchableOpacity>
+                                : <></>
+                        }
                     </View>
                     <View style={{ flexDirection: 'row', alignSelf: 'center' }}>
                         <View style={styles.counterElement}>

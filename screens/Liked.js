@@ -33,7 +33,7 @@ function Liked(props) {
     console.log("PROPS!!!", props.route.params);
     async function getLikedPosts() {
         try {
-            const response = await axios.get(`http://192.168.1.24:3000/liked-posts/${userEmail}`);
+            const response = await axios.get(`http://192.168.1.4:3000/liked-posts/${userEmail}`);
             console.log(response.data);
             setPosts2(response.data.postsObjs);
         } catch (error) {

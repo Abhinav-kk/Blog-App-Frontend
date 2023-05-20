@@ -19,7 +19,7 @@ export default function Header() {
     async function getUserAPI(email) {
         try {
             console.log("Recieved email is:", email);
-            const response = await axios.post("http://192.168.1.24:3000/users", {
+            const response = await axios.post("http://192.168.1.4:3000/users", {
                 email: email
             });
             setUserObj(response.data);
@@ -42,7 +42,7 @@ export default function Header() {
         <View style={styles.headerView}>
             <Image source={require("../assets/images/BlogIcon.png")} style={styles.logo} />
             <View style={{ flexDirection: 'row' }}>
-                <TouchableOpacity style={{ marginRight: 20 }} onPress={() => navigation.navigate("Profile", { userObj: userObj })}>
+                <TouchableOpacity style={{ marginRight: 20 }} onPress={() => navigation.navigate("Profile", { userObj: userObj, loggedInUser: userObj.userName })}>
                     <MaterialIcons name="person" size={45} color="black" />
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => navigation.navigate("Liked", { emailUser: userEmail, userObj: userObj })}>

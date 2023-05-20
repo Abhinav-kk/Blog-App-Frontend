@@ -10,7 +10,7 @@ export default function Signup(props) {
     const [password, setPassword] = useState("");
 
     async function signupAPI() {
-        const response = await axios.post("http://192.168.1.24:3000/signup", {
+        const response = await axios.post("http://192.168.1.4:3000/signup", {
             userName: userName,
             email: email,
             password: password

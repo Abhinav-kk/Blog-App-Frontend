@@ -11,7 +11,7 @@ export default function Login(props) {
     console.log("Props:", props.navigation);
 
     async function loginAPI() {
-        const response = await axios.post("http://192.168.1.24:3000/login", {
+        const response = await axios.post("http://192.168.1.4:3000/login", {
             email: email,
             password: password,
         })

@@ -1,9 +1,9 @@
-import { SafeAreaView, StyleSheet, Text, View, Image, TouchableOpacity, FlatList, TextInput } from 'react-native'
+import { SafeAreaView, StyleSheet, Text, View, Image, TouchableOpacity, FlatList, TextInput, Modal } from 'react-native'
 import React, { useCallback, useRef, useState, useEffect } from 'react'
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet'
 import { MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons'
 import HeaderBack from '../components/HeaderBack'
-import { ScrollView } from 'react-native-gesture-handler'
+import { ScrollView, TouchableWithoutFeedback } from 'react-native-gesture-handler'
 import axios from 'axios';
 
 const posts = [
@@ -53,10 +53,52 @@ function Post(props) {
 
     const textInputRef = useRef(null);
 
+    const [likedUsers, setLikedUsers] = useState([]);
+
+    const [userObj, setUserObj] = useState({});
+
+    const [modalVisible, setModalVisible] = useState(false);
+
+    function likeModal() {
+        return (
+            <Modal
+                animationType="slide"
+                transparent={true}
+                visible={modalVisible}
+                onRequestClose={() => {
+                    setModalVisible(!modalVisible);
+                }}>
+                <View style={styles.centeredView}>
+                    <View style={styles.modalView}>
+                        <Text style={styles.modalText}>Liked Users</Text>
+                        {renderLikedUsers()}
+                    </View>
+                </View>
+            </Modal>
+        )
+    }
+
     const handleSnapPress = useCallback((index) => {
         sheetRef.current?.snapToIndex(index);
         setIsOpened(true);
     }, []);
+
+    const renderLikedUsers = () => {
+        function renderItem(item) {
+            return (
+                <TouchableOpacity onPress={() => { setModalVisible(!modalVisible); props.navigation.navigate("Profile", { userObj: item, loggedInUser: userName }); }}>
+                    <Text style={styles.likedUserText}>{item.userName}</Text>
+                </TouchableOpacity>
+            )
+        }
+        return (
+            <FlatList
+                data={likedUsers}
+                renderItem={({ item }) => renderItem(item)}
+                keyExtractor={item => item._id}
+            />
+        )
+    }
 
 
     function checkUser() {
@@ -67,13 +109,22 @@ function Post(props) {
         }
     }
 
+    async function getUserAPI() {
+        try {
+            console.log("Recieved username is:", post.userName);
+            console.log("User Email is:", userEmail);
+            const response = await axios.post("http://192.168.1.4:3000/user", {
+                userName: post.userName
+            });
+            setUserObj(response.data);
+            console.log("Response", response.status);
+            console.log("OBJ:", response.data);
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
     function getLikedPosts() {
-        // try {
-        //     const response = await axios.get(`http://192.168.1.24:3000/liked-posts/${userEmail}`);
-        //     console.log(response.data);
-        // } catch (error) {
-        //     console.log(error);
-        // }
         console.log(props.route.params.userLikedPosts);
         let userLikedPosts = props.route.params.userLikedPosts;
         try {
@@ -89,12 +140,23 @@ function Post(props) {
         }
     }
 
+    async function getLikedUsers() {
+        try {
+            console.log("POST ID", post._id);
+            const response = await axios.post(`http://192.168.1.4:3000/post/${post._id}/liked-users`);
+            console.log("Liked users array:", response.data);
+            setLikedUsers(response.data);
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
     async function likePostAPI() {
         try {
             console.log(userEmail);
             console.log("Post ID: " + post._id);
             let postID = post._id;
-            const response = await axios.post(`http://192.168.1.24:3000/like-posts/${userEmail}`, {
+            const response = await axios.post(`http://192.168.1.4:3000/like-posts/${userEmail}`, {
                 postID: postID,
             })
             console.log(response.data);
@@ -109,7 +171,7 @@ function Post(props) {
         try {
             console.log("Post ID: " + post._id);
             let postID = post._id;
-            const response = await axios.post(`http://192.168.1.24:3000/unlike-posts/${userEmail}`, {
+            const response = await axios.post(`http://192.168.1.4:3000/unlike-posts/${userEmail}`, {
                 postID: postID,
             })
             console.log(response.data);
@@ -146,6 +208,8 @@ function Post(props) {
     useEffect(() => {
         getLikedPosts();
         checkUser();
+        getUserAPI();
+        getLikedUsers();
     }, []);
 
     console.log("CURR USER:", ifCurrentUser);
@@ -166,6 +230,7 @@ function Post(props) {
             {renderPosts()}
             {/* <editPost /> */}
             {isOpened ? editPostSheet() : <></>}
+            {likeModal()}
         </SafeAreaView>
     )
 
@@ -173,7 +238,7 @@ function Post(props) {
         try {
             console.log("Post ID: " + post._id);
             let postID = post._id;
-            const response = await axios.delete(`http://192.168.1.24:3000/post/${postID}`);
+            const response = await axios.delete(`http://192.168.1.4:3000/post/${postID}`);
             console.log(response.data);
             console.log(response.status);
             console.log("Deleted!");
@@ -192,7 +257,7 @@ function Post(props) {
         try {
             console.log("Post ID: " + post._id);
             let postID = post._id;
-            const response = await axios.put(`http://192.168.1.24:3000/post/${postID}`, {
+            const response = await axios.put(`http://192.168.1.4:3000/post/${postID}`, {
                 title: title,
                 content: content,
             })
@@ -244,9 +309,13 @@ function Post(props) {
     function renderPosts() {
         return (
             <ScrollView style={styles.postTouchable} contentContainerStyle={{ flexGrow: 1, justifyContent: 'space-between', flexDirection: 'column' }}>
-                <Text style={styles.postTitle} onPress={() => { getLikedPosts(); }}>{post.title}</Text>
+                <TouchableWithoutFeedback onPress={() => console.log("Liked Are", likedUsers)}>
+                    <Text style={styles.postTitle} onPress={() => { getLikedPosts(); }}>{post.title}</Text>
+                </TouchableWithoutFeedback>
                 <View style={styles.postUserDetails}>
-                    <Text style={styles.postUser}>By {post.userName}</Text>
+                    <TouchableOpacity onPress={() => props.navigation.navigate("Profile", { userObj: userObj, loggedInUser: userName })}>
+                        <Text style={styles.postUser}>By {post.userName}</Text>
+                    </TouchableOpacity>
                     <Text style={styles.postDate}>{post.createdDate}</Text>
                 </View>
                 <Text style={styles.postContent}>
@@ -254,11 +323,6 @@ function Post(props) {
                 </Text>
                 <View style={{ flex: 1, justifyContent: 'flex-end' }}>
                     <View style={{ flexDirection: 'row', justifyContent: 'space-evenly' }}>
-                        <TouchableOpacity onPress={() => handleLike()} style={{ alignContent: 'center', alignSelf: 'center' }}>
-                            {like ?
-                                <MaterialCommunityIcons name="cards-heart" size={45} color="red" />
-                                : <MaterialCommunityIcons name="cards-heart-outline" size={45} color="black" />}
-                        </TouchableOpacity>
                         {ifCurrentUser ?
                             <TouchableOpacity onPress={() => handleSnapPress(0)} style={{ alignContent: 'center', alignSelf: 'center' }}>
                                 <MaterialIcons name="edit" size={45} color="black" />
@@ -266,6 +330,12 @@ function Post(props) {
                             :
                             <></>
                         }
+                        <TouchableOpacity onPress={() => handleLike()} style={{ alignContent: 'center', alignSelf: 'center' }}>
+                            {like ?
+                                <MaterialCommunityIcons name="cards-heart" size={45} color="red" />
+                                : <MaterialCommunityIcons name="cards-heart-outline" size={45} color="black" />}
+                        </TouchableOpacity>
+
                         {ifCurrentUser ?
                             <TouchableOpacity onPress={() => handleDelete()} style={{ alignContent: 'center', alignSelf: 'center' }}>
                                 <MaterialCommunityIcons name="trash-can" size={45} color="black" />
@@ -274,6 +344,15 @@ function Post(props) {
                             <></>
                         }
                     </View>
+                    {
+                        likedUsers ?
+                            <TouchableOpacity onPress={() => setModalVisible(!modalVisible)} style={{ alignSelf: 'center', padding: 10 }}>
+                                <Text style={styles.likeCount}>
+                                    {likedUsers.length}
+                                </Text>
+                            </TouchableOpacity>
+                            : <></>
+                    }
                     {
                         content.length > 500 ?
                             <View style={{ marginBottom: 50 }}>
@@ -413,5 +492,41 @@ const styles = StyleSheet.create({
     postContent: {
         fontSize: 18,
         marginVertical: 10,
-    }
+    },
+    likeCount: {
+        fontSize: 22,
+    },
+    modalView: {
+        margin: 20,
+        width: "80%",
+        backgroundColor: 'white',
+        borderRadius: 20,
+        padding: 35,
+        alignItems: 'center',
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        elevation: 5,
+        borderColor: 'black',
+        borderWidth: 1,
+    },
+    centeredView: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginTop: 22,
+    },
+    likedUserText: {
+        fontSize: 20,
+        padding: 10,
+    },
+    modalText: {
+        textAlign: 'center',
+        fontSize: 30,
+        fontWeight: 'bold',
+    },
 })
