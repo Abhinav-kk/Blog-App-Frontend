@@ -19,4 +19,4 @@ You may also see any lint errors in the console.
 
 <img src = "https://github.com/Abhinav-kk/Blog-App-Frontend/blob/9840f981d378bcbce704a70090292a890c91153e/assets/appImages/1.png" width ="200" /> <img src = "https://github.com/Abhinav-kk/Blog-App-Frontend/blob/9840f981d378bcbce704a70090292a890c91153e/assets/appImages/2.png" width ="200" /> <img src = "https://github.com/Abhinav-kk/Blog-App-Frontend/blob/9840f981d378bcbce704a70090292a890c91153e/assets/appImages/3.png" width ="200" /> <img src = "https://github.com/Abhinav-kk/Blog-App-Frontend/blob/9840f981d378bcbce704a70090292a890c91153e/assets/appImages/4.png" width ="200" /> <img src = "https://github.com/Abhinav-kk/Blog-App-Frontend/blob/9840f981d378bcbce704a70090292a890c91153e/assets/appImages/5.png" width ="200" /> <img src = "https://github.com/Abhinav-kk/Blog-App-Frontend/blob/9840f981d378bcbce704a70090292a890c91153e/assets/appImages/6.png" width ="200" />
 
-## Demo Video:  https://youtu.be/ac8xd08dVk8
+## Demo Video:  https://www.youtube.com/watch?v=MntYWRf9Woo
